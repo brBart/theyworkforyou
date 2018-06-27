@@ -2,7 +2,12 @@
     <div class="full-page__row">
         <div class="full-page__unit">
           <?php if ( $image ) { ?>
-            <img class="person-header__image" src="<?= $image['url'] ?>">
+            <div class="person-header__image <?= $image['size'] == 'S' ? 'person-header__image--small' : '' ?>">
+              <?php if ( $image['size'] == 'S' ) { ?>
+                <span style="background-image: url('<?= $image['url'] ?>');"></span>
+              <?php } ?>
+                <img src="<?= $image['url'] ?>">
+            </div>
           <?php } ?>
             <div class="person-header__about">
                 <h1 class="person-header__about__name"><?= $full_name ?></h1>
