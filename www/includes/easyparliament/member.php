@@ -32,6 +32,15 @@ class MEMBER {
         4 => 'Scottish Parliament',
     );
 
+    // Mapping member table 'house' numbers to roles.
+    public $membership_nouns = array(
+        0 => 'Member of royalty',
+        1 => 'MP',
+        2 => 'Peer',
+        3 => 'MLA',
+        4 => 'MSP',
+    );
+
     // Mapping member table reasons to text.
     public $reasons = array(
         'became_peer'		=> 'Became peer',
@@ -127,6 +136,8 @@ class MEMBER {
                     'date' => $entered_house,
                     'date_pretty' => $this->entered_house_text($entered_house),
                     'reason' => $this->entered_reason_text($entered_reason),
+                    'house' => $house,
+                    'membership_noun' => $this->membership_nouns[$house],
                 );
             }
 
@@ -136,7 +147,9 @@ class MEMBER {
                     'date_pretty' => $this->left_house_text($left_house),
                     'reason' => $this->left_reason_text($left_reason, $left_house, $house),
                     'constituency' => $const,
-                    'party' => $this->party_text($party)
+                    'party' => $this->party_text($party),
+                    'house' => $house,
+                    'membership_noun' => $this->membership_nouns[$house],
                 );
             }
 
@@ -578,6 +591,28 @@ class MEMBER {
         }
         if ($house) return $current[$house];
         return $current;
+    }
+
+    public function get_latest_membership() {
+        $departures = $this->left_house();
+
+        usort(
+            $departures,
+            function ($a, $b) {
+                if ( $a['date'] == $b['date'] ) {
+                    return 0;
+                } else if ( $a['date'] < $b['date'] ) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        );
+
+        $latest_membership = array_slice($departures, -1)[0];
+        $latest_membership['current'] = ($latest_membership['date'] == '9999-12-31');
+
+        return $latest_membership;
     }
 
     public function the_users_mp() { return $this->the_users_mp; }
